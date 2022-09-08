@@ -18,6 +18,7 @@ import {
 
 import { DocumentInfo } from './files';
 import { Database, UriTransformer } from './database';
+import { CaseInsensitiveMap } from './CaseInsensitiveMap';
 
 interface Moniker extends PMoniker {
 	key: string;
@@ -63,7 +64,7 @@ interface In {
 interface Indices {
 	monikers: Map<string, Moniker[]>;
 	contents: Map<string, string>;
-	documents: Map<string, { hash: string, documents: Document[] }>;
+	documents: CaseInsensitiveMap<string, { hash: string, documents: Document[] }>;
 }
 
 interface ResultPath<T> {
@@ -101,7 +102,7 @@ export class JsonStore extends Database {
 
 		this.indices = {
 			contents: new Map(),
-			documents: new Map(),
+			documents: new CaseInsensitiveMap(),
 			monikers: new Map(),
 		};
 
@@ -230,7 +231,7 @@ export class JsonStore extends Database {
 	}
 
 	private doProcessDocument(document: Document): void {
-		const contents = document.contents !== undefined ? document.contents : 'No content provided.';
+		const contents = document.contents !== undefined ? document.contents : 'Tm8gY29udGVudCBwcm92aWRlZC4=' /* base64 encoded version of "No content provided." */ ;
 		this.vertices.documents.set(document.id, document);
 		const hash = crypto.createHash('md5').update(contents).digest('base64');
 		this.indices.contents.set(hash, contents);

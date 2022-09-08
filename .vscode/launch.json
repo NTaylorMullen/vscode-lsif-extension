@@ -18,7 +18,7 @@
 			"request": "launch",
 			"name": "Launch Client LSIF",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--folder-uri=lsif:///c:/ADO/nimullen.RichNavHelloWorld/CSharp/HelloWorld.lsif"],
+			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--folder-uri=lsif:///c:/ADO/nimullen.RichNavHelloWorld/CSharp/HelloWorld.linked.lsif"],
 			"outFiles": ["${workspaceRoot}/client/out/**/*.js"],
 			"preLaunchTask": {
 				"type": "npm",

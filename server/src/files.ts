@@ -5,6 +5,7 @@
 import * as path from 'path';
 
 import { Id } from 'lsif-protocol';
+import { CaseInsensitiveMap } from './CaseInsensitiveMap';
 
 const ctime = Date.now();
 const mtime = Date.now();
@@ -79,11 +80,14 @@ export class FileSystem {
 			this.workspaceRoot = workspaceRoot;
 			this.workspaceRootWithSlash = workspaceRoot + '/';
 		}
+
+		const caseInsensitiveWorkspaceRoot = this.workspaceRootWithSlash.toLowerCase();
 		this.root = Directory.create('');
 		this.filesOutsideWorkspaceRoot = new CaseInsensitiveMap();
 		for (let info of documents) {
+			const caseInsensitiveDocumentFilePath = info.uri.toLowerCase();
 			// Do not show file outside the workspaceRoot.
-			if (!info.uri.startsWith(this.workspaceRootWithSlash)) {
+			if (!caseInsensitiveDocumentFilePath.startsWith(caseInsensitiveWorkspaceRoot)) {
 				this.filesOutsideWorkspaceRoot.set(info.uri, info);
 				continue;
 			}
@@ -101,8 +105,11 @@ export class FileSystem {
 		if (this.filesOutsideWorkspaceRoot.has(uri)) {
 			return { type: FileType.File, ctime, mtime, size: 0 };
 		}
-		let isRoot = this.workspaceRoot.toLowerCase() === uri.toLowerCase();
-		if (!uri.startsWith(this.workspaceRootWithSlash) && !isRoot) {
+		const caseInsensitiveUri = uri.toLowerCase();
+		const caseInsensitiveRoot = this.workspaceRoot.toLowerCase();
+		const caseInsensitiveRootWithSlash = this.workspaceRootWithSlash.toLowerCase();
+		let isRoot = caseInsensitiveRoot === caseInsensitiveUri;
+		if (!caseInsensitiveUri.startsWith(caseInsensitiveRootWithSlash) && !isRoot) {
 			return null;
 		}
 		let p = isRoot ? '' : uri.substring(this.workspaceRootWithSlash.length);
@@ -111,8 +118,11 @@ export class FileSystem {
 	}
 
 	public readDirectory(uri: string): [string, FileType][] {
-		let isRoot = this.workspaceRoot.toLowerCase() === uri.toLowerCase();
-		if (!uri.startsWith(this.workspaceRootWithSlash) && !isRoot) {
+		const caseInsensitiveUri = uri.toLowerCase();
+		const caseInsensitiveRoot = this.workspaceRoot.toLowerCase();
+		const caseInsensitiveRootWithSlash = this.workspaceRootWithSlash.toLowerCase();
+		let isRoot = caseInsensitiveRoot === caseInsensitiveUri;
+		if (!caseInsensitiveUri.startsWith(caseInsensitiveRootWithSlash) && !isRoot) {
 			return [];
 		}
 		let p = isRoot ? '' : uri.substring(this.workspaceRootWithSlash.length);
@@ -132,8 +142,12 @@ export class FileSystem {
 		if (result !== undefined) {
 			return result;
 		}
-		let isRoot = this.workspaceRoot.toLowerCase() === uri.toLowerCase();
-		if (!uri.startsWith(this.workspaceRootWithSlash) && !isRoot) {
+		
+		const caseInsensitiveUri = uri.toLowerCase();
+		const caseInsensitiveRoot = this.workspaceRoot.toLowerCase();
+		const caseInsensitiveRootWithSlash = this.workspaceRootWithSlash.toLowerCase();
+		let isRoot = caseInsensitiveRoot === caseInsensitiveUri;
+		if (!caseInsensitiveUri.startsWith(caseInsensitiveRootWithSlash) && !isRoot) {
 			return undefined;
 		}
 		let entry = this.lookup(isRoot ? '' : uri.substring(this.workspaceRootWithSlash.length));
@@ -164,27 +178,3 @@ export class FileSystem {
 	}
 }
 
-class CaseInsensitiveMap<T, U> extends Map<T, U> {    
-	set(key: T, value: U): this {
-		if (typeof key === 'string') {
-			key = key.toLowerCase() as any as T;
-		}
-		return super.set(key, value);
-	}
-  
-	get(key: T): U | undefined {
-		if (typeof key === 'string') {
-			key = key.toLowerCase() as any as T;
-	  }
-  
-	  return super.get(key);
-	}
-  
-	has(key: T): boolean {
-		if (typeof key === 'string') {
-			key = key.toLowerCase() as any as T;
-		}
-  
-		return super.has(key);
-	}
-}
