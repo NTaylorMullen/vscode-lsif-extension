@@ -53,12 +53,12 @@ namespace File {
 interface Directory extends FileStat {
 	type: 2;
 	name: string;
-	children: Map<string, Entry>;
+	children: CaseInsensitiveMap<string, Entry>;
 }
 
 namespace Directory {
 	export function create(name: string): Directory {
-		return { type: FileType.Directory, ctime: Date.now(), mtime: Date.now(), size: 0, name, children: new Map() };
+		return { type: FileType.Directory, ctime: Date.now(), mtime: Date.now(), size: 0, name, children: new CaseInsensitiveMap() };
 	}
 }
 
@@ -68,7 +68,7 @@ export class FileSystem {
 
 	private workspaceRoot: string;
 	private workspaceRootWithSlash: string;
-	private filesOutsideWorkspaceRoot: Map<string, { id: Id, hash: string | undefined }>;
+	private filesOutsideWorkspaceRoot: CaseInsensitiveMap<string, { id: Id, hash: string | undefined }>;
 	private root: Directory;
 
 	constructor(workspaceRoot: string, documents: DocumentInfo[]) {
@@ -80,7 +80,7 @@ export class FileSystem {
 			this.workspaceRootWithSlash = workspaceRoot + '/';
 		}
 		this.root = Directory.create('');
-		this.filesOutsideWorkspaceRoot = new Map();
+		this.filesOutsideWorkspaceRoot = new CaseInsensitiveMap();
 		for (let info of documents) {
 			// Do not show file outside the workspaceRoot.
 			if (!info.uri.startsWith(this.workspaceRootWithSlash)) {
@@ -101,7 +101,7 @@ export class FileSystem {
 		if (this.filesOutsideWorkspaceRoot.has(uri)) {
 			return { type: FileType.File, ctime, mtime, size: 0 };
 		}
-		let isRoot = this.workspaceRoot === uri;
+		let isRoot = this.workspaceRoot.toLowerCase() === uri.toLowerCase();
 		if (!uri.startsWith(this.workspaceRootWithSlash) && !isRoot) {
 			return null;
 		}
@@ -111,7 +111,7 @@ export class FileSystem {
 	}
 
 	public readDirectory(uri: string): [string, FileType][] {
-		let isRoot = this.workspaceRoot === uri;
+		let isRoot = this.workspaceRoot.toLowerCase() === uri.toLowerCase();
 		if (!uri.startsWith(this.workspaceRootWithSlash) && !isRoot) {
 			return [];
 		}
@@ -132,7 +132,7 @@ export class FileSystem {
 		if (result !== undefined) {
 			return result;
 		}
-		let isRoot = this.workspaceRoot === uri;
+		let isRoot = this.workspaceRoot.toLowerCase() === uri.toLowerCase();
 		if (!uri.startsWith(this.workspaceRootWithSlash) && !isRoot) {
 			return undefined;
 		}
@@ -161,5 +161,30 @@ export class FileSystem {
 			entry = child;
 		}
 		return entry;
+	}
+}
+
+class CaseInsensitiveMap<T, U> extends Map<T, U> {    
+	set(key: T, value: U): this {
+		if (typeof key === 'string') {
+			key = key.toLowerCase() as any as T;
+		}
+		return super.set(key, value);
+	}
+  
+	get(key: T): U | undefined {
+		if (typeof key === 'string') {
+			key = key.toLowerCase() as any as T;
+	  }
+  
+	  return super.get(key);
+	}
+  
+	has(key: T): boolean {
+		if (typeof key === 'string') {
+			key = key.toLowerCase() as any as T;
+		}
+  
+		return super.has(key);
 	}
 }

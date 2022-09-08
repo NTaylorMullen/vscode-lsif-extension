@@ -18,7 +18,7 @@
 			"request": "launch",
 			"name": "Launch Client LSIF",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--folder-uri=lsif:///c:/Users/dirkb/Projects/mseng/VSCode/vscode-lsif-extension/samples/jsonrpc.lsif"],
+			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--folder-uri=lsif:///c:/ADO/nimullen.RichNavHelloWorld/CSharp/HelloWorld.lsif"],
 			"outFiles": ["${workspaceRoot}/client/out/**/*.js"],
 			"preLaunchTask": {
 				"type": "npm",
@@ -57,7 +57,7 @@
 	"compounds": [
 		{
 			"name": "Client + Server",
-			"configurations": ["Launch Client", "Attach to Server"]
+			"configurations": ["Launch Client LSIF", "Attach to Server"]
 		}
 	]
 }
