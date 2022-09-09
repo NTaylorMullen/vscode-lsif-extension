@@ -1,14 +1,12 @@
 export class CaseInsensitiveMap<T, U> extends Map<T, U> {
-	set(key: T, value: U): this {
-		if (typeof key === 'string') {
-			key = key.toLowerCase() as any as T;
-		}
-		return super.set(key, value);
-	}
-
 	get(key: T): U | undefined {
 		if (typeof key === 'string') {
-			key = key.toLowerCase() as any as T;
+			const lowerCasedKey = key.toLowerCase();
+			for (const storedKey in this.entries()) {
+				if (storedKey.toLowerCase() === lowerCasedKey) {
+					return super.get(storedKey as any as T);
+				}
+			}
 		}
 
 		return super.get(key);
@@ -16,7 +14,12 @@ export class CaseInsensitiveMap<T, U> extends Map<T, U> {
 
 	has(key: T): boolean {
 		if (typeof key === 'string') {
-			key = key.toLowerCase() as any as T;
+			const lowerCasedKey = key.toLowerCase();
+			for (const storedKey in this.entries()) {
+				if (storedKey.toLowerCase() === lowerCasedKey) {
+					return super.has(storedKey as any as T);
+				}
+			}
 		}
 
 		return super.has(key);
